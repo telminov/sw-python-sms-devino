@@ -1,1 +1,5 @@
-
+.idea
+MANIFEST
+build/
+dist/
+sw-python-sms-devino.egg-info
