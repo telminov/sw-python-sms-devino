@@ -76,7 +76,7 @@ class SmsState:
 
 class DevinoClient:
 
-    def __init__(self, login: str, password: str, url: str =REST_URL):
+    def __init__(self, login: str, password: str, url: str = REST_URL):
         self.login = login
         self.password = password
         self.url = url

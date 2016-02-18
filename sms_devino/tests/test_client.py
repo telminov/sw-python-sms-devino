@@ -2,11 +2,12 @@
 import datetime
 import time
 from unittest import TestCase
+from unittest.mock import patch
+
 from .. import client
 
 
-class SmsState(TestCase):
-
+class SmsStateTestCase(TestCase):
     def test_parse_state(self):
         state_data = {
             'State': 0,
@@ -33,3 +34,61 @@ class SmsState(TestCase):
 
         parsed_dt = client.SmsState._parse_date(date_str)
         self.assertEqual(parsed_dt, now)
+
+
+class DevinoClientTestCase(TestCase):
+    def setUp(self):
+        self.client = client.DevinoClient(login='test', password='123')
+
+    @patch.object(client, 'requests')
+    def test_request_get(self, requests_mock):
+        requests_mock.get.return_value.status_code = 200
+        requests_mock.get.return_value.json.return_value = 'ok'
+        self.assertFalse(requests_mock.get.called)
+
+        result = self.client._request('/some_url/', {'test': 123})
+
+        self.assertTrue(requests_mock.get.called)
+        self.assertEqual(
+            result,
+            requests_mock.get.return_value.json.return_value,
+        )
+
+    @patch.object(client, 'requests')
+    def test_request_post(self, requests_mock):
+        requests_mock.post.return_value.status_code = 200
+        requests_mock.post.return_value.json.return_value = 'ok'
+        self.assertFalse(requests_mock.post.called)
+
+        result = self.client._request('/some_url/', {'test': 123}, method=client.METHOD_POST)
+
+        self.assertTrue(requests_mock.post.called)
+        self.assertEqual(
+            result,
+            requests_mock.post.return_value.json.return_value,
+        )
+
+    @patch.object(client, 'requests')
+    def test_request_status_error(self, requests_mock):
+        error_data = {'Code': 123, 'Desc': 'test error'}
+        requests_mock.get.return_value.status_code = 400
+        requests_mock.get.return_value.json.return_value = error_data
+        self.assertFalse(requests_mock.get.called)
+
+        exception = None
+        try:
+            self.client._request('/some_url/', {'test': 123}, method=client.METHOD_GET)
+        except client.DevinoException as ex:
+            exception = ex
+
+        self.assertTrue(requests_mock.get.called)
+        self.assertIsNotNone(exception)
+        self.assertEqual(exception.http_status, requests_mock.get.return_value.status_code)
+        self.assertEqual(exception.error.code, error_data['Code'])
+        self.assertEqual(exception.error.description, error_data['Desc'])
+
+    # def test_get_session_id(self):
+
+
+    # def test_get_balance(self):
+    #
