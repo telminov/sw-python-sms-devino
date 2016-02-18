@@ -2,8 +2,11 @@
 Integration with API of devinotele.com
 
 ## Install
+```
+pip install sw-python-sms-devino
+```
 
-## Using
+## Usage
 ```python
 from sms_devino.client import DevinoClient
 
