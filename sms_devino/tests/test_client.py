@@ -87,7 +87,21 @@ class DevinoClientTestCase(TestCase):
         self.assertEqual(exception.error.code, error_data['Code'])
         self.assertEqual(exception.error.description, error_data['Desc'])
 
-    # def test_get_session_id(self):
+    @patch.object(client, 'requests')
+    def test_get_session_id(self, requests_mock):
+        requests_mock.get.return_value.status_code = 200
+        requests_mock.get.return_value.json.return_value = '123123'
+
+        self.assertEqual(requests_mock.get.call_count, 0)
+
+        session_id = self.client._get_session_id()
+        self.assertEqual(session_id, requests_mock.get.return_value.json.return_value)
+        self.assertEqual(requests_mock.get.call_count, 1)
+
+        call_args, call_kwargs = requests_mock.get.call_args
+        self.assertEqual(self.client.url + client.SESSION_URL, call_args[0])
+        self.assertEqual(self.client.login, call_kwargs['params']['login'])
+        self.assertEqual(self.client.password, call_kwargs['params']['password'])
 
 
     # def test_get_balance(self):
