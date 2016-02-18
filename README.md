@@ -1,4 +1,6 @@
 # sw-python-sms-devino
+[![Build Status](https://travis-ci.org/telminov/sw-python-sms-devino.svg?branch=master)](https://travis-ci.org/telminov/sw-python-sms-devino)
+
 Integration with API of devinotele.com
 
 ## Install
