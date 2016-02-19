@@ -34,7 +34,8 @@ class DevinoException(Exception):
 
 
 class SendSmsResult:
-    def __init__(self, sms_ids: List[str]):
+    def __init__(self, address: str, sms_ids: List[str]):
+        self.address = address
         self.sms_ids = sms_ids
 
 
@@ -100,7 +101,7 @@ class DevinoClient:
             'validity': validity_minutes,
         }
         sms_ids = self._request(SEND_ONE_URL, params, method=METHOD_POST)
-        return SendSmsResult(sms_ids)
+        return SendSmsResult(destination_address, sms_ids)
 
     def send_bulk(self, source_address: str, destination_addresses: List[str], message: str,
                  validity_minutes: int = 0) -> List[SendSmsResult]:
@@ -124,7 +125,8 @@ class DevinoClient:
             message_ids.append(sms_id)
 
             if len(message_ids) == ids_per_sms:
-                send_result = SendSmsResult(message_ids)
+                address = destination_addresses[len(results)]
+                send_result = SendSmsResult(address, message_ids)
                 message_ids = []
                 results.append(send_result)
 

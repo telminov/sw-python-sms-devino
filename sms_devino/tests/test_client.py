@@ -117,7 +117,6 @@ class DevinoClientTestCase(TestCase):
         call_args, call_kwargs = requests_mock.get.call_args
         self.assertEqual(self.client.url + client.BALANCE_URL, call_args[0])
 
-
     @patch.object(client, 'requests')
     def test_send_one(self, requests_mock):
         self.client._session_id = '123321'
@@ -128,6 +127,7 @@ class DevinoClientTestCase(TestCase):
         destination_address = '89151234567'
         message = 'Hello!'
         result = self.client.send_one(source_address, destination_address, message)
+        self.assertEqual(result.address, destination_address)
         self.assertEqual(result.sms_ids, requests_mock.post.return_value.json.return_value)
 
         call_args, call_kwargs = requests_mock.post.call_args
@@ -135,5 +135,28 @@ class DevinoClientTestCase(TestCase):
         self.assertEqual(self.client._session_id, call_kwargs['data']['sessionId'])
         self.assertEqual(source_address, call_kwargs['data']['sourceAddress'])
         self.assertEqual(destination_address, call_kwargs['data']['destinationAddress'])
+        self.assertEqual(message, call_kwargs['data']['data'])
+        self.assertEqual(0, call_kwargs['data']['validity'])
+
+    @patch.object(client, 'requests')
+    def test_send_bulk(self, requests_mock):
+        self.client._session_id = '123321'
+        requests_mock.post.return_value.status_code = 200
+        requests_mock.post.return_value.json.return_value = ['1.1', '1.2', '2.1', '2.2']
+
+        source_address = 'MyOrg'
+        destination_addresses = ['89151234567', '89157654321']
+        message = 'Hello!'
+        results = self.client.send_bulk(source_address, destination_addresses, message)
+        for i, address in enumerate(destination_addresses):
+            result = results[i]
+            self.assertEqual(result.address, address)
+            self.assertEqual(result.sms_ids, requests_mock.post.return_value.json.return_value[i*2:i*2+2])
+
+        call_args, call_kwargs = requests_mock.post.call_args
+        self.assertEqual(self.client.url + client.SEND_BULK_URL, call_args[0])
+        self.assertEqual(self.client._session_id, call_kwargs['data']['sessionId'])
+        self.assertEqual(source_address, call_kwargs['data']['sourceAddress'])
+        self.assertEqual(destination_addresses, call_kwargs['data']['DestinationAddresses'])
         self.assertEqual(message, call_kwargs['data']['data'])
         self.assertEqual(0, call_kwargs['data']['validity'])
