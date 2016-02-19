@@ -60,7 +60,7 @@ class SmsState:
         return cls(
             code=int(state_data.get('State')),
             description=state_data.get('StateDescription'),
-            price=Decimal(state_data.get('Price')),
+            price=Decimal(state_data['Price']) if state_data.get('Price') else None,
             creation_dt=cls._parse_date(state_data.get('CreationDateUtc')),
             submitted_dt=cls._parse_date(state_data.get('SubmittedDateUtc')),
             result_dt=cls._parse_date(state_data.get('TimeStampUtc')),
@@ -69,6 +69,9 @@ class SmsState:
 
     @staticmethod
     def _parse_date(value: str) -> datetime.datetime:
+        if not value:
+            return
+
         milliseconds = int(re.search(r'\d+', value).group())
         seconds = int(milliseconds/1000)
         dt = datetime.datetime.fromtimestamp(seconds)
@@ -154,7 +157,7 @@ class DevinoClient:
                 response = requests.post(request_url, data=params)
         except requests.ConnectionError as ex:
             raise DevinoException(
-                message='Ошибка отправки',
+                message='Ошибка соединения',
                 base_exception=ex,
             )
 
@@ -165,7 +168,7 @@ class DevinoClient:
                 description=error_description.get('Desc'),
             )
             raise DevinoException(
-                message='Ошибка отправки',
+                message='Ошибка отправки {0}-запроса'.format(method),
                 http_status=response.status_code,
                 error=error,
             )

@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name='sw-python-sms-devino',
-    version='0.0.1',
+    version='0.0.2',
     description='Integration with API of devinotele.com.',
     author='Telminov Sergey',
     url='https://github.com/telminov/sw-python-sms-devino',

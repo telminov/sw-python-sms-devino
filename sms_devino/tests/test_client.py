@@ -39,6 +39,10 @@ class SmsStateTestCase(TestCase):
         parsed_dt = client.SmsState._parse_date(date_str)
         self.assertEqual(parsed_dt, now)
 
+    def test_parse_date_none(self):
+        parsed_dt = client.SmsState._parse_date('')
+        self.assertIsNone(parsed_dt)
+
 
 @patch.object(client, 'requests')
 class DevinoClientTestCase(TestCase):
