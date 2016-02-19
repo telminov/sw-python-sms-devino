@@ -7,17 +7,21 @@ from unittest.mock import patch
 from .. import client
 
 
+def get_state_data():
+    return {
+        'State': 0,
+        'StateDescription': 'Доставлено',
+        'Price': 1.5,
+        'SubmittedDateUtc': '/Date(1455820738000)/',
+        'TimeStampUtc': '/Date(1455820744000)/',
+        'CreationDateUtc': '/Date(1455820738000)/',
+        'ReportedDateUtc': '/Date(1455820744000)/'
+    }
+
+
 class SmsStateTestCase(TestCase):
     def test_parse_state(self):
-        state_data = {
-            'State': 0,
-            'StateDescription': 'Доставлено',
-            'Price': 1.5,
-            'SubmittedDateUtc': '/Date(1455820738000)/',
-            'TimeStampUtc': '/Date(1455820744000)/',
-            'CreationDateUtc': '/Date(1455820738000)/',
-            'ReportedDateUtc': '/Date(1455820744000)/'
-        }
+        state_data = get_state_data()
         state = client.SmsState.parse_state(state_data)
         self.assertEqual(state.code, state_data['State'])
         self.assertEqual(state.description, state_data['StateDescription'])
@@ -36,11 +40,11 @@ class SmsStateTestCase(TestCase):
         self.assertEqual(parsed_dt, now)
 
 
+@patch.object(client, 'requests')
 class DevinoClientTestCase(TestCase):
     def setUp(self):
         self.client = client.DevinoClient(login='test', password='123')
 
-    @patch.object(client, 'requests')
     def test_request_get(self, requests_mock):
         requests_mock.get.return_value.status_code = 200
         requests_mock.get.return_value.json.return_value = 'ok'
@@ -54,7 +58,6 @@ class DevinoClientTestCase(TestCase):
             requests_mock.get.return_value.json.return_value,
         )
 
-    @patch.object(client, 'requests')
     def test_request_post(self, requests_mock):
         requests_mock.post.return_value.status_code = 200
         requests_mock.post.return_value.json.return_value = 'ok'
@@ -68,7 +71,6 @@ class DevinoClientTestCase(TestCase):
             requests_mock.post.return_value.json.return_value,
         )
 
-    @patch.object(client, 'requests')
     def test_request_status_error(self, requests_mock):
         error_data = {'Code': 123, 'Desc': 'test error'}
         requests_mock.get.return_value.status_code = 400
@@ -87,7 +89,6 @@ class DevinoClientTestCase(TestCase):
         self.assertEqual(exception.error.code, error_data['Code'])
         self.assertEqual(exception.error.description, error_data['Desc'])
 
-    @patch.object(client, 'requests')
     def test_get_session_id(self, requests_mock):
         requests_mock.get.return_value.status_code = 200
         requests_mock.get.return_value.json.return_value = 'session_id_123'
@@ -106,7 +107,6 @@ class DevinoClientTestCase(TestCase):
         self.client._get_session_id()
         self.assertEqual(requests_mock.get.call_count, 1)
 
-    @patch.object(client, 'requests')
     def test_get_balance(self, requests_mock):
         requests_mock.get.return_value.status_code = 200
         requests_mock.get.return_value.json.return_value = 100500
@@ -117,7 +117,6 @@ class DevinoClientTestCase(TestCase):
         call_args, call_kwargs = requests_mock.get.call_args
         self.assertEqual(self.client.url + client.BALANCE_URL, call_args[0])
 
-    @patch.object(client, 'requests')
     def test_send_one(self, requests_mock):
         self.client._session_id = '123321'
         requests_mock.post.return_value.status_code = 200
@@ -138,7 +137,6 @@ class DevinoClientTestCase(TestCase):
         self.assertEqual(message, call_kwargs['data']['data'])
         self.assertEqual(0, call_kwargs['data']['validity'])
 
-    @patch.object(client, 'requests')
     def test_send_bulk(self, requests_mock):
         self.client._session_id = '123321'
         requests_mock.post.return_value.status_code = 200
@@ -160,3 +158,12 @@ class DevinoClientTestCase(TestCase):
         self.assertEqual(destination_addresses, call_kwargs['data']['DestinationAddresses'])
         self.assertEqual(message, call_kwargs['data']['data'])
         self.assertEqual(0, call_kwargs['data']['validity'])
+
+    def test_get_state(self, requests_mock):
+        self.client._session_id = '123321'
+        requests_mock.get.return_value.status_code = 200
+        requests_mock.get.return_value.json.return_value = get_state_data()
+
+        sms_id = '123456'
+        state = self.client.get_state(sms_id)
+        self.assertEqual(state.code, requests_mock.get.return_value.json.return_value['State'])

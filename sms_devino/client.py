@@ -134,7 +134,7 @@ class DevinoClient:
 
     def get_state(self, sms_id: str) -> SmsState:
         session_id = self._get_session_id()
-        params = {'sessionId': session_id , 'messageId': sms_id}
+        params = {'sessionId': session_id, 'messageId': sms_id}
         state_data = self._request(STATE_URL, params)
         state = SmsState.parse_state(state_data)
         return state
