@@ -167,3 +167,8 @@ class DevinoClientTestCase(TestCase):
         sms_id = '123456'
         state = self.client.get_state(sms_id)
         self.assertEqual(state.code, requests_mock.get.return_value.json.return_value['State'])
+
+        call_args, call_kwargs = requests_mock.get.call_args
+        self.assertEqual(self.client.url + client.STATE_URL, call_args[0])
+        self.assertEqual(self.client._session_id, call_kwargs['params']['sessionId'])
+        self.assertEqual(sms_id, call_kwargs['params']['messageId'])
