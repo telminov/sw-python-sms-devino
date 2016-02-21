@@ -2,7 +2,7 @@
 [![Build Status](https://travis-ci.org/telminov/sw-python-sms-devino.svg?branch=master)](https://travis-ci.org/telminov/sw-python-sms-devino)
 [![Coverage Status](https://coveralls.io/repos/github/telminov/sw-python-sms-devino/badge.svg?branch=master)](https://coveralls.io/github/telminov/sw-python-sms-devino?branch=master)
 
-Integration with API of devinotele.com
+Integration with API of [devinotele.com](http://devinotele.com/)
 
 ## Install
 ```
