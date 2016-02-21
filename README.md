@@ -1,7 +1,7 @@
 # sw-python-sms-devino
 [![Build Status](https://travis-ci.org/telminov/sw-python-sms-devino.svg?branch=master)](https://travis-ci.org/telminov/sw-python-sms-devino)
 [![Coverage Status](https://coveralls.io/repos/github/telminov/sw-python-sms-devino/badge.svg?branch=master)](https://coveralls.io/github/telminov/sw-python-sms-devino?branch=master)
-![pypi-version](https://img.shields.io/pypi/v/sw-python-sms-devino.svg)
+[![pypi-version](https://img.shields.io/pypi/v/sw-python-sms-devino.svg)](https://pypi.python.org/pypi/sw-python-sms-devino)
 
 Integration with [API](http://devinotele.com/resheniya/dokumentaciya-po-api/http_rest_protocol/Obshchiye_svedeniya/) of [devinotele.com](http://devinotele.com/)
 
