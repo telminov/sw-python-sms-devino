@@ -142,6 +142,8 @@ class DevinoClient:
         state = SmsState.parse_state(state_data)
         return state
 
+    # TODO: добавить метод для забора результатов по серии СМС (sms_ids -> List[str])
+
     def _get_session_id(self) -> str:
         if not self._session_id:
             self._session_id = self._request(SESSION_URL, {'login': self.login, 'password': self.password})
